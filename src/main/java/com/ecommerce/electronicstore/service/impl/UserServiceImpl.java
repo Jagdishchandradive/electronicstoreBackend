@@ -8,10 +8,9 @@ import com.ecommerce.electronicstore.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -40,6 +39,8 @@ public class UserServiceImpl implements UserService {
         oldUser.setGender(userDto.getGender());
         oldUser.setAbout(userDto.getAbout());
         oldUser.setEmail(userDto.getEmail());
+        oldUser.setPassword(userDto.getPassword());
+        oldUser.setImageName(userDto.getImageName());
 
         User updatedUser=userRepository.save(oldUser);
         return modelMapper.map(updatedUser,UserDto.class);
@@ -47,12 +48,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
+        this.userRepository.delete(user);
 
     }
 
     @Override
     public List<UserDto> getAllUser() {
-        return List.of();
+        List<User> users = this.userRepository.findAll();
+
+        List<UserDto> userDto = users.stream()
+                .map(user -> modelMapper.map(user, UserDto.class)) // Correct mapping
+                .collect(Collectors.toList());
+        return userDto;
     }
 
     @Override
@@ -65,11 +74,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserByEmail(String email) {
-        return null;
+        User user = userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("Email"+email+"Not Found"));
+        return modelMapper.map(user, UserDto.class);
     }
 
     @Override
     public List<UserDto> searchUser(String keyword) {
-        return List.of();
+        List<User> users = this.userRepository.findByNameContaining(keyword);
+        List<UserDto> userDto = users.stream()
+                .map(user -> modelMapper.map(user, UserDto.class)) // Correct mapping
+                .collect(Collectors.toList());
+        return userDto;
+
     }
 }
