@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(UserDto userDto, String userId) {
         User oldUser = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("For Update, the User with ID " + userId + " not found"));
         oldUser.setName(userDto.getName());
         oldUser.setGender(userDto.getGender());
         oldUser.setAbout(userDto.getAbout());

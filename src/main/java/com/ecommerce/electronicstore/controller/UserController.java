@@ -1,25 +1,26 @@
 package com.ecommerce.electronicstore.controller;
 
+import com.ecommerce.electronicstore.dto.ApiResponse;
 import com.ecommerce.electronicstore.dto.UserDto;
 import com.ecommerce.electronicstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
-    private UserService userService;
 
-    @PostMapping("/create")
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+    @PostMapping("/create-user")
     public ResponseEntity<UserDto>createUser(@RequestBody UserDto userDto){
         UserDto createUserDto = this.userService.createUser(userDto);
         return new ResponseEntity<>(createUserDto, HttpStatus.CREATED);
@@ -30,11 +31,32 @@ public class UserController {
         return new ResponseEntity<>(userDto1,HttpStatus.OK);
     }
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable String userId){
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable String userId){
         userService.deleteUser(userId);
-        return new ResponseEntity<>("User with Id "+userId+"Deleted",HttpStatus.OK);
+        ApiResponse message= ApiResponse
+                .builder()
+                .message("User Deleted")
+                .success(true)
+                .status(HttpStatus.OK)
+                .build();
+        return new ResponseEntity<ApiResponse>(message,HttpStatus.OK);
     }
 
+    @GetMapping("/all-users")
+    public ResponseEntity<List<UserDto>>getAllUsers(){
+       return new ResponseEntity<>(userService.getAllUser(),HttpStatus.OK);
+    }
 
-
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto>getUser(@PathVariable String userId){
+        return new ResponseEntity<>(userService.getUserById(userId),HttpStatus.OK);
+    }
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserDto>getUserByEmail(@PathVariable String email){
+        return new ResponseEntity<>(userService.getUserByEmail(email),HttpStatus.OK);
+    }
+    @GetMapping("/search/{keyword}")
+    public ResponseEntity<List<UserDto>>searchByKeyword(@PathVariable String keyword){
+        return new ResponseEntity<>(userService.searchUser(keyword),HttpStatus.FOUND);
+    }
 }
