@@ -18,21 +18,22 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-        private Logger logger= LoggerFactory.getLogger(GlobalExceptionHandler.class);
-        @ExceptionHandler(ResourceNotFoundException.class)
-        public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+    private Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-            logger.info("Exception handler Invoked..");
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("timestamp", LocalDateTime.now());
-            errorResponse.put("message", ex.getMessage());
-            errorResponse.put("status", HttpStatus.NOT_FOUND.value());
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
 
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        }
+        logger.info("Exception handler Invoked..");
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now());
+        errorResponse.put("message", ex.getMessage());
+        errorResponse.put("status", HttpStatus.NOT_FOUND.value());
 
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 
 //            Map<String, Object> errorResponse = new HashMap<>();
 //            errorResponse.put("timestamp", LocalDateTime.now());
@@ -40,15 +41,17 @@ public class GlobalExceptionHandler {
 //            errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
 //
 //            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-       List<ObjectError> allerrors=ex.getBindingResult().getAllErrors();
-       Map<String,Object>response=new HashMap<>();
-       allerrors.stream().forEach(objectError -> {
-           String message =objectError.getDefaultMessage();
-           String field=((FieldError)objectError).getField();
-           response.put(field,message);
-       });
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-        }
+
+        logger.info("MethodArgumentNotValidException handler Invoked..");
+        List<ObjectError> allerrors = ex.getBindingResult().getAllErrors();
+        Map<String, Object> response = new HashMap<>();
+        allerrors.stream().forEach(objectError -> {
+            String message = objectError.getDefaultMessage();
+            String field = ((FieldError) objectError).getField();
+            response.put(field, message);
+        });
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 
 
 }

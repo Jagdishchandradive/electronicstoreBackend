@@ -7,7 +7,12 @@ import com.ecommerce.electronicstore.repository.UserRepository;
 import com.ecommerce.electronicstore.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -55,9 +60,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUser() {
-        List<User> users = this.userRepository.findAll();
-
+    public List<UserDto> getAllUser(int pageNumber,int pageSize) {
+        Pageable pageable= PageRequest.of(pageNumber, pageSize);
+        Page<User> page = this.userRepository.findAll(pageable);
+        List<User>users=page.getContent();
         List<UserDto> userDto = users.stream()
                 .map(user -> modelMapper.map(user, UserDto.class)) // Correct mapping
                 .collect(Collectors.toList());
