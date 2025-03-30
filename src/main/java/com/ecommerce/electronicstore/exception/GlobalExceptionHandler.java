@@ -1,5 +1,6 @@
 package com.ecommerce.electronicstore.exception;
 
+import com.ecommerce.electronicstore.dto.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -53,5 +54,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+
+    @ExceptionHandler(BadApiRequest.class)
+    public ResponseEntity<Map<String, Object>> handleBadApiRequestException(BadApiRequest ex) {
+
+        logger.info("Bad Api request handler Invoked..");
+        ApiResponse response=ApiResponse.builder().message(ex.getMessage()).status(HttpStatus.BAD_REQUEST).success(false).build();
+        return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
+    }
 
 }
