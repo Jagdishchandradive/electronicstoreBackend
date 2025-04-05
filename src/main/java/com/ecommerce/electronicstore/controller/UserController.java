@@ -43,17 +43,23 @@ public class UserController {
 
     @PostMapping("/create-user")
     public ResponseEntity<UserDto>createUser(@Valid @RequestBody UserDto userDto){
+        logger.info("Creating new user with data: {}", userDto);
         UserDto createUserDto = this.userService.createUser(userDto);
+        logger.info("User created successfully with ID: {}", createUserDto);
         return new ResponseEntity<>(createUserDto, HttpStatus.CREATED);
     }
     @PutMapping("/{userId}")
     public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable String userId) {
+        logger.info("Updating user with ID: {}", userId);
         UserDto userDto1 = this.userService.updateUser(userDto, userId);
+        logger.info("User with ID: {} updated successfully.", userId);
         return new ResponseEntity<>(userDto1,HttpStatus.OK);
     }
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable String userId){
+        logger.warn("Deleting user with ID: {}", userId);
         userService.deleteUser(userId);
+        logger.info("User with ID: {} deleted successfully.", userId);
         ApiResponse message= ApiResponse
                 .builder()
                 .message("User Deleted")
@@ -70,28 +76,36 @@ public class UserController {
             @RequestParam(value="sortBy",defaultValue = "name",required = false) String sortBy,
             @RequestParam(value = "sortDir",defaultValue = "asc",required=false) String sortDir
     ){
-       return new ResponseEntity<>(userService.getAllUser(pageNumber,pageSize,sortBy,sortDir),HttpStatus.OK);
+        logger.info("Fetching all users: pageNumber={}, pageSize={}, sortBy={}, sortDir={}",
+                pageNumber, pageSize, sortBy, sortDir);
+        return new ResponseEntity<>(userService.getAllUser(pageNumber,pageSize,sortBy,sortDir),HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto>getUser(@PathVariable String userId){
+        logger.info("Fetching user by ID: {}", userId);
         return new ResponseEntity<>(userService.getUserById(userId),HttpStatus.OK);
     }
     @GetMapping("/email/{email}")
     public ResponseEntity<UserDto>getUserByEmail(@PathVariable String email){
+        logger.info("Fetching user by email: {}", email);
         return new ResponseEntity<>(userService.getUserByEmail(email),HttpStatus.OK);
     }
     @GetMapping("/search/{keyword}")
     public ResponseEntity<List<UserDto>>searchByKeyword(@PathVariable String keyword){
-        return new ResponseEntity<>(userService.searchUser(keyword),HttpStatus.FOUND);
+        logger.info("Searching users by keyword: {}", keyword);
+        List<UserDto> result = userService.searchUser(keyword);
+        logger.info("Found {} users for keyword: {}", result.size(), keyword);
+        return new ResponseEntity<>(result, HttpStatus.FOUND);
     }
     //upload user image
     @PostMapping("/image/{userId}")
     public ResponseEntity<ImageResponse>uploadUserImage(
             @RequestParam("userImage")MultipartFile image,
             @PathVariable String userId) throws IOException {
-
+        logger.info("Uploading image for user ID: {}", userId);
         String imageName = fileService.UploadFile(image, imageUploadPath);
+        logger.info("Image uploaded successfully: {}", imageName);
         UserDto user=userService.getUserById(userId);
         user.setImageName(imageName);
         UserDto userDto=userService.updateUser(user,userId);
@@ -104,7 +118,7 @@ public class UserController {
     // serve user image
     @GetMapping("/image/{userId}")
     public void serveUserimage(@PathVariable String userId, HttpServletResponse response) throws IOException {
-
+        logger.info("Serving image for user ID: {}", userId);
         UserDto userById = userService.getUserById(userId);
         logger.info("User image name:{}",userById.getImageName());
         InputStream resource = fileService.getResource(imageUploadPath, userById.getImageName());

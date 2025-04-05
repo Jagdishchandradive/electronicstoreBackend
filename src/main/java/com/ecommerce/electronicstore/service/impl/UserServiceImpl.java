@@ -42,16 +42,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
+        logger.info("Creating user with name: {}", userDto.getName());
         String userId = UUID.randomUUID().toString();
         userDto.setUserId(userId);
         User user = modelMapper.map(userDto, User.class);
         User savedUser = userRepository.save(user);
+        logger.info("User created successfully with ID: {}", savedUser.getUserId());
         return modelMapper.map(savedUser, UserDto.class);
     }
 
 
     @Override
     public UserDto updateUser(UserDto userDto, String userId) {
+        logger.info("Updating user with ID: {}", userId);
         User oldUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("For Update, the User with ID " + userId + " not found"));
         oldUser.setName(userDto.getName());
@@ -62,6 +65,7 @@ public class UserServiceImpl implements UserService {
         oldUser.setImageName(userDto.getImageName());
 
         User updatedUser=userRepository.save(oldUser);
+        logger.info("User with ID: {} updated successfully.", userId);
         return modelMapper.map(updatedUser,UserDto.class);
     }
 
@@ -84,6 +88,7 @@ public class UserServiceImpl implements UserService {
 //    }
 @Override
 public void deleteUser(String userId) {
+    logger.info("Attempting to delete user with ID: {}", userId);
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
     String fullImagePath = imagePath + user.getImageName();
@@ -116,15 +121,19 @@ public void deleteUser(String userId) {
     public PageableResponse<UserDto> getAllUser(int pageNumber, int pageSize,
                                                 String sortBy, String sortDir)
     {
+        logger.info("Fetching all users with pagination: pageNumber={}, pageSize={}, sortBy={}, sortDir={}",
+                pageNumber, pageSize, sortBy, sortDir);
         Sort sort= (sortDir.equalsIgnoreCase("desc"))?(Sort.by(sortBy).descending()):(Sort.by(sortBy).ascending());
         Pageable pageable= PageRequest.of(pageNumber, pageSize,sort);
         Page<User> page = this.userRepository.findAll(pageable);
         PageableResponse<UserDto> response = Helper.getPageableResponse(page, UserDto.class);
+        logger.info("Retrieved {} users", response.getContent().size());
         return response;
     }
 
     @Override
     public UserDto getUserById(String userId) {
+        logger.info("Fetching user by ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
         return modelMapper.map(user, UserDto.class);
@@ -133,16 +142,19 @@ public void deleteUser(String userId) {
 
     @Override
     public UserDto getUserByEmail(String email) {
+        logger.info("Fetching user by email: {}", email);
         User user = userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("Email"+email+"Not Found"));
         return modelMapper.map(user, UserDto.class);
     }
 
     @Override
     public List<UserDto> searchUser(String keyword) {
+        logger.info("Searching users by keyword: {}", keyword);
         List<User> users = this.userRepository.findByNameContaining(keyword);
         List<UserDto> userDto = users.stream()
                 .map(user -> modelMapper.map(user, UserDto.class)) // Correct mapping
                 .collect(Collectors.toList());
+        logger.info("Found {} users matching keyword '{}'", userDto.size(), keyword);
         return userDto;
 
     }
