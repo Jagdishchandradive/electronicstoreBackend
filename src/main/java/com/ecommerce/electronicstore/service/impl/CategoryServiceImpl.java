@@ -1,8 +1,7 @@
 package com.ecommerce.electronicstore.service.impl;
-import com.ecommerce.electronicstore.dto.UserDto;
 import com.ecommerce.electronicstore.entity.Category;
-import com.ecommerce.electronicstore.entity.User;
 import com.ecommerce.electronicstore.exception.ResourceNotFoundException;
+import com.ecommerce.electronicstore.helper.Helper;
 import org.modelmapper.ModelMapper;
 import com.ecommerce.electronicstore.dto.CategoryDto;
 import com.ecommerce.electronicstore.dto.PageableResponse;
@@ -10,10 +9,11 @@ import com.ecommerce.electronicstore.repository.CategoryRepository;
 import com.ecommerce.electronicstore.service.CategoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
@@ -34,9 +34,6 @@ public class CategoryServiceImpl implements CategoryService{
 
         return modelMapper.map(saveCategory,CategoryDto.class);
     }
-
-
-
 
     @Override
     public CategoryDto update(CategoryDto categoryDto, String categoryId) {
@@ -60,13 +57,21 @@ public class CategoryServiceImpl implements CategoryService{
         categoryRepository.delete(category);
     }
 
+
     @Override
-    public PageableResponse<CategoryDto> getAll() {
-        return null;
+    public PageableResponse<CategoryDto> getAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Sort sort=(sortDir.equalsIgnoreCase("desc"))?(Sort.by(sortBy).descending()):(Sort.by(sortBy).ascending());
+        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+        Page<Category> page = categoryRepository.findAll(pageable);
+        PageableResponse<CategoryDto> pageableResponse = Helper.getPageableResponse(page, CategoryDto.class);
+
+        return pageableResponse;
     }
 
     @Override
     public CategoryDto getCategoryById(String categoryId) {
-        return null;
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("For Update, the Category with ID " + categoryId + " not found"));
+        return modelMapper.map(category,CategoryDto.class);
     }
 }
