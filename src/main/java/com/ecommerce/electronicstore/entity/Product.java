@@ -9,20 +9,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="categories")
-public class Category {
+@Table(name="products")
+public class Product {
     @Id
-    @Column(name="Id")
-    private String categoryId;
-    @Column(name="category_title",length=60,nullable =false)
+    private String productId;
     private String title;
-    @Column(name="category_desc",length = 200)
+
+    @Column(length=10000)
     private String description;
-    private String coverImage;
+    private int price;
+    private int discountedPrice;
+    private int quantity;
+    private Date addedDate;
+    private boolean live;
+    private boolean stock;
+
 
 }

@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private Logger logger= LoggerFactory.getLogger(UserController.class);
+    private final Logger logger= LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
     private final FileService fileService;
@@ -106,9 +106,9 @@ public class UserController {
         logger.info("Uploading image for user ID: {}", userId);
         String imageName = fileService.UploadFile(image, imageUploadPath);
         logger.info("Image uploaded successfully: {}", imageName);
-        UserDto user=userService.getUserById(userId);
-        user.setImageName(imageName);
-        UserDto userDto=userService.updateUser(user,userId);
+        UserDto user1=userService.getUserById(userId);
+        user1.setImageName(imageName);
+        UserDto userDto=userService.updateUser(user1,userId);
         ImageResponse imageResponse=ImageResponse.builder()
                 .imageName(imageName).success(true)
                 .status(HttpStatus.CREATED)

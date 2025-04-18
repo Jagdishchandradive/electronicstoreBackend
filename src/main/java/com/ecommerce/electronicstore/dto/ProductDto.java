@@ -1,32 +1,29 @@
 package com.ecommerce.electronicstore.dto;
 
-import com.ecommerce.electronicstore.validate.ImageNameValid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import java.util.Date;
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class CategoryDto {
 
-    private String categoryId;
+public class ProductDto {
 
+    private String productId;
     @NotBlank(message = " title cannot be blank")
     @Size(min=4,max=50,message="Title must be of 4 Characters")
     private String title;
     @NotBlank(message = "description cannot be blank")
     private String description;
-    @NotBlank(message = "description cannot be empty")
-    @ImageNameValid
-    private String coverImage;
-
+    private int price;
+    private int discountedPrice;
+    private int quantity;
+    private Date addedDate;
+    private boolean live;
+    private boolean stock;
 }
