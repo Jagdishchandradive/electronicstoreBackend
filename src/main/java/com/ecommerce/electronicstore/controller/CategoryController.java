@@ -4,9 +4,11 @@ import com.ecommerce.electronicstore.dto.ApiResponse;
 import com.ecommerce.electronicstore.dto.CategoryDto;
 import com.ecommerce.electronicstore.dto.ImageResponse;
 import com.ecommerce.electronicstore.dto.PageableResponse;
+import com.ecommerce.electronicstore.dto.ProductDto;
 import com.ecommerce.electronicstore.dto.UserDto;
 import com.ecommerce.electronicstore.service.CategoryService;
 import com.ecommerce.electronicstore.service.FileService;
+import com.ecommerce.electronicstore.service.ProductService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -30,6 +32,8 @@ public class CategoryController {
     private final Logger logger= LoggerFactory.getLogger(CategoryController.class);
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private ProductService productService;
     @Autowired
     private FileService fileService;
     @Value("${category.cover.image.path}")
@@ -100,5 +104,22 @@ public class CategoryController {
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource,response.getOutputStream());
     }
+    //create product with category
+    @PostMapping("/{categoryId}/products")
+    public ResponseEntity<ProductDto>createProductWithCategory(
+            @PathVariable("categoryId")String categoryId,
+            @RequestBody ProductDto productDto){
+        ProductDto productWithCategory = productService.createWithCategory(productDto, categoryId);
+        return new ResponseEntity<>(productWithCategory,HttpStatus.CREATED);
+    }
 
+    @PutMapping("/{categoryId}/products/{productId}")
+    public ResponseEntity<ProductDto>updateCategoryOfProduct(
+            @PathVariable String categoryId,
+            @PathVariable String productId
+
+    ){
+        ProductDto productDto = productService.updateCategory(productId, categoryId);
+        return  new ResponseEntity<>(productDto,HttpStatus.OK);
+    }
 }
